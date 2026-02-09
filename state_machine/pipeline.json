@@ -1,0 +1,48 @@
+{
+  "Comment": "NYC Green Taxi pipeline: ingest -> transform -> store",
+  "StartAt": "Ingest",
+  "States": {
+    "Ingest": {
+      "Type": "Task",
+      "Resource": "http://host.docker.internal:9000/ingest",
+      "ResultPath": "$.ingest",
+      "Next": "Transform",
+      "Retry": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 2,
+          "BackoffRate": 2.0
+        }
+      ]
+    },
+    "Transform": {
+      "Type": "Task",
+      "Resource": "http://host.docker.internal:9000/transform",
+      "ResultPath": "$.transform",
+      "Next": "Store",
+      "Retry": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 2,
+          "BackoffRate": 2.0
+        }
+      ]
+    },
+    "Store": {
+      "Type": "Task",
+      "Resource": "http://host.docker.internal:9000/store",
+      "ResultPath": "$.store",
+      "End": true,
+      "Retry": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 2,
+          "BackoffRate": 2.0
+        }
+      ]
+    }
+  }
+}
