@@ -1,10 +1,14 @@
 {
-  "Comment": "NYC Green Taxi pipeline: ingest -> transform -> store",
+  "Comment": "NYC Green Taxi pipeline: ingest -> transform -> store (Lambda integration simulated locally)",
   "StartAt": "Ingest",
   "States": {
     "Ingest": {
       "Type": "Task",
-      "Resource": "http://host.docker.internal:9000/ingest",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "ingest",
+        "Payload.$": "$"
+      },
       "ResultPath": "$.ingest",
       "Next": "Transform",
       "Retry": [
@@ -18,7 +22,11 @@
     },
     "Transform": {
       "Type": "Task",
-      "Resource": "http://host.docker.internal:9000/transform",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "transform",
+        "Payload.$": "$"
+      },
       "ResultPath": "$.transform",
       "Next": "Store",
       "Retry": [
@@ -32,7 +40,11 @@
     },
     "Store": {
       "Type": "Task",
-      "Resource": "http://host.docker.internal:9000/store",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "store",
+        "Payload.$": "$"
+      },
       "ResultPath": "$.store",
       "End": true,
       "Retry": [
